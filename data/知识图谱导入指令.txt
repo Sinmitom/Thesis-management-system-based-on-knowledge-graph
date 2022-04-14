@@ -1,0 +1,29 @@
+# 遇上csv文件乱码，先用 记事本 打开文件，在另存为csv文件时选择utf-8转码
+
+# MATCH (n) detach delete n
+
+# 导入作者信息
+LOAD CSV WITH HEADERS FROM "file:///citation///e_author_info.csv" AS line
+CREATE (Author:Author{authorId:line.authorID, authorName:line.authorName, pc:line.pc, cn:line.cn, hi:line.hi, pi:line.pi, upi:line.upi})
+
+# 导入作者与论文的关系
+LOAD CSV WITH HEADERS FROM "file:///citation///r_author_own.csv" AS line
+MATCH (FROM:Author{authorId:line.START_ID}), (TO:Paper{paperId:line.END_ID})
+MERGE (FROM)-[Author_Paper: Author_Paper{type:line.TYPE, author_pos:line.author_position}]->(TO)
+
+# 导入关系表【这里关系表和品牌系列表一样】
+LOAD CSV WITH HEADERS FROM "file:///series.csv" AS line
+MATCH (entity1: Bank{name:line.bank}), (entity2: Series{name:line.series})
+CREATE (entity1) - [:Subtype{type:line.relation}] -> (entity2)
+
+# 查询品牌及其关系
+MATCH p=()-[r:Subtype]->() RETURN p LIMIT 250
+
+CREATE CONSTRAINT FOR (b: Bank)
+ASSERT b.name is UNIQUE
+
+match (n:Series) return n LIMIT 25
+
+
+
+
