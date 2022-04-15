@@ -87,9 +87,9 @@
     tableData = []
     for (var i = 0 ; i < searchResult.length ; i++){
         relationData = {} ;
-        relationData['entity1'] = searchResult[i]['n1']['name'];
+        relationData['entity1'] = searchResult[i]['n1']['paperTitle'];
         relationData['relation'] = searchResult[i]['rel']['type'] ;
-        relationData['entity2'] = searchResult[i]['n2']['name'] ;
+        relationData['entity2'] = searchResult[i]['n2']['paperTitle'] ;
         tableData.push(relationData) ;
     }
     jQuery(function(){
@@ -111,7 +111,7 @@
     for( var i = 0 ;id < Math.min(maxDisPlayNode,searchResult.length) && i<searchResult.length ; i++ ){
         //获取node1
         node1 = {} ;
-        node1['name'] = searchResult[i]['n1']['name'] ;
+        node1['name'] = searchResult[i]['n1']['paperTitle'] ;
         node1['draggable'] = true ;
         if('url' in searchResult[i]['n1']){
             node1['category'] = 1 ;
@@ -138,7 +138,7 @@
 
         //获取node2
         node2 = {} ;
-        node2['name'] = searchResult[i]['n2']['name'] ;
+        node2['name'] = searchResult[i]['n2']['paperTitle'] ;
         node2['draggable'] = true ;
         if('url' in searchResult[i]['n2']){
             node2['category'] = 1 ;

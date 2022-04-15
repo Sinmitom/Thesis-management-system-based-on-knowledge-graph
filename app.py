@@ -32,6 +32,7 @@ def search_entity():
 
 @app.route('/search_relation', methods=['GET', 'POST'])
 def search_relation():
+    # 基于关系查询
     relation_form = RelationForm()
     res = {'ctx': '', 'searchResult': ''}
     if relation_form.validate_on_submit():

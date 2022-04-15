@@ -11,13 +11,16 @@ LOAD CSV WITH HEADERS FROM "file:///citation///r_author_own.csv" AS line
 MATCH (FROM:Author{authorId:line.START_ID}), (TO:Paper{paperId:line.END_ID})
 MERGE (FROM)-[Author_Paper: Author_Paper{type:line.TYPE, author_pos:line.author_position}]->(TO)
 
-# 导入关系表【这里关系表和品牌系列表一样】
-LOAD CSV WITH HEADERS FROM "file:///series.csv" AS line
-MATCH (entity1: Bank{name:line.bank}), (entity2: Series{name:line.series})
-CREATE (entity1) - [:Subtype{type:line.relation}] -> (entity2)
+# 导入单位信息
+LOAD CSV WITH HEADERS FROM "file:///citation///e_affiliation_info.csv" AS line
+CREATE (Affiliation:Affiliation{affiliationId:line.affiliationId, affiliationName:line.affiliationName})
 
-# 查询品牌及其关系
-MATCH p=()-[r:Subtype]->() RETURN p LIMIT 250
+
+# 导入作者与单位的关系
+LOAD CSV WITH HEADERS FROM "file:///citation///r_author_belong.csv" AS line
+MATCH (FROM:Author{authorId:line.START_ID}), (TO:Affiliation{affiliationId:line.END_ID})
+MERGE (FROM)-[Author_Affiliaion: Author_Affiliaion{type:line.TYPE}]->(TO)
+
 
 CREATE CONSTRAINT FOR (b: Bank)
 ASSERT b.name is UNIQUE
