@@ -84,11 +84,12 @@
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
         // 基于查询结果：初始化Data和Links列表，用于Echarts可视化输出
-        var entityRelation = [ {{ entityRelation|safe }} ] ;   //禁用单个变量的自动转义
+        var entityRelation = [ {{ entityRelation|safe }} ] ;
         var data = [] ;
         var links = [] ;
         var node = {} ;
-        var str = eval('{{ ctx|safe }}')
+        var str = entityRelation[0][0]['entity1']['paperTitle']
+        //var str = eval('{{ ctx|safe }}')
         //实体1：待查询的对象
         node['name'] = str;
         node['draggable'] = true ;
