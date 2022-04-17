@@ -36,8 +36,9 @@ def search_entity(entity, select):
 	#连接数据库
 	db = neo4jconn
 	print('测试实体查询')
-	print(entity)
-	print(type(select))
+	# print(entity)
+	# print(type(select))
+	entity = entity.strip()
 	entityRelation = db.getEntityRelationbyEntity(entity, select)
 	# print(entityRelation)
 	if len(entityRelation) == 0:

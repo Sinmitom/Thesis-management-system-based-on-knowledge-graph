@@ -14,3 +14,11 @@ answer = self.graph.run("MATCH (entity1) - [rel] -> (entity2)  WHERE entity1.Nam
         "MATCH (entity1) - [rel] - (entity2)  WHERE entity1.authorName = \"" + value + "\" RETURN entity1, rel, entity2").data()
 # answer = self.graph.run(
         #     "MATCH (entity1) - [rel] -> (entity2) WHERE entity1.paperTitle Contains \"" + value + "\" RETURN entity1, rel, entity2").data()
+
+
+MATCH (n1)- [rel] -> (n2:Paper{Name:"Equational theories and database constraints"}) return n1, rel, n2
+
+
+# if (len(answer) == 0):
+        #     answer = self.graph.run(
+        #         "MATCH (n1)- [rel:Author_Paper {type:\"" + relation + "\"}] -> (n2:Author {authorName:\"" + entity + "\"}) RETURN n1,rel,n2").data()

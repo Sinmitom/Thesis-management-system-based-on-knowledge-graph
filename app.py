@@ -37,9 +37,11 @@ def search_entity():
 def search_relation():
     # 基于关系查询
     relation_form = RelationForm()
+    relation = relation_form.relation.choices[relation_form.relation.data-1][1]   # 相应的查找关系
+    print('关系查询测试')
     res = {'ctx': '', 'searchResult': ''}
     if relation_form.validate_on_submit():
-        res = search_relation_handler.search_relation(relation_form.entity1.data, relation_form.relation.data,
+        res = search_relation_handler.search_relation(relation_form.entity1.data, relation,
                                                       relation_form.entity2.data)
     return render_template('relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
 

@@ -15,13 +15,13 @@ class NerForm(MyBaseForm):
 
 class EntityForm(MyBaseForm):
     # 输入框前加入候选框
-    select = SelectField('relation', choices=[(1, 'paperName'), (2, 'authorName')], default=1, coerce=int)
+    select = SelectField('relation', choices=[(1, 'paperName'), (2, 'authorName') ], default=1, coerce=int)
     entity = StringField('entity', validators=[DataRequired()])
     submit = SubmitField('查询')
 
 
 class RelationForm(MyBaseForm):
     entity1 = StringField('entity1')
-    relation = SelectField('relation', choices=[(1, '无限制')], default=1, coerce=int)
+    relation = SelectField('relation', choices=[(1, '无限制'), (2, 'refer'), (3, 'own'), (4, 'belong'), (5, 'interest')], default=1, coerce=int)
     entity2 = StringField('entity2')
     submit = SubmitField('查询')
