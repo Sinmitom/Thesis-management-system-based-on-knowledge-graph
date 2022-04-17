@@ -29,7 +29,8 @@
                     {{ form.csrf_token }}
                     <div>
                         <div class="input-group">
-                            {{ form.entity(class="form-control", placeholder="输入实体名称") }}
+                            {{ form.select(class="form-control", style="width:200px;margin:0px 20px;") }}
+                            {{ form.entity(class="form-control", placeholder="输入实体名称" ,style="width:200px;margin:0px 20px;")}}
                             {{ form.submit(class="btn btn-primary", style="background-color:#4592fe; margin: 20px 0px;") }}
                         </div>
                         {% for message in form.entity.errors %}
@@ -88,7 +89,8 @@
         var data = [] ;
         var links = [] ;
         var node = {} ;
-        var str = entityRelation[0][0]['entity1']['paperTitle']
+        //通过类型进行区分实体1
+        var str = entityRelation[0][0]['entity1']['Name']
         //var str = eval('{{ ctx|safe }}')
         //实体1：待查询的对象
         node['name'] = str;
@@ -98,10 +100,11 @@
         data.push(node) ;
 
         //实体2：查询并转储到data中，取二者较小的值
-        var maxDisPlayNode = 25 ;
+        var maxDisPlayNode = 25 ;   //最大展示数目
         for( var i = 0 ;i < Math.min(maxDisPlayNode,entityRelation[0].length) ; i++ ){
             node = {} ;
-            node['name'] = entityRelation[0][i]['entity2']['paperTitle'] ;
+
+            node['name'] = entityRelation[0][i]['entity2']['Name'] ;
             node['draggable'] = true ;   //是否允许拖拽
             //是否URL：区分类型
             if('url' in entityRelation[0][i]['entity2']){
@@ -147,9 +150,10 @@
         tableData = []
         for (var i = 0 ; i < entityRelation[0].length ; i++){
             relationData = {} ;
+
             relationData['entity1'] = str ;
             relationData['relation'] = entityRelation[0][i]['rel']['type'] ;
-            relationData['entity2'] = entityRelation[0][i]['entity2']['paperTitle'] ;
+            relationData['entity2'] = entityRelation[0][i]['entity2']['Name'] ;
             tableData.push(relationData) ;
         }
         jQuery(function(){

@@ -14,6 +14,8 @@ class NerForm(MyBaseForm):
 
 
 class EntityForm(MyBaseForm):
+    # 输入框前加入候选框
+    select = SelectField('relation', choices=[(1, 'paperName'), (2, 'authorName')], default=1, coerce=int)
     entity = StringField('entity', validators=[DataRequired()])
     submit = SubmitField('查询')
 

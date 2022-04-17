@@ -1,0 +1,75 @@
+#运行此条指令后的结果
+value = "SpaceTime TradeOffs for Banded Matrix Problems"
+answer = graph.run("MATCH (entity1) - [rel] -> (entity2)  WHERE entity1.paperTitle = \"" + value + "\" RETURN entity1,rel,entity2").data()
+
+
+
+[
+{'entity1':
+ Node('Paper', paperId='12', paperTitle='SpaceTime TradeOffs for Banded Matrix Problems', paperYear='1984'),
+
+ 'rel': Citation(
+         Node('Paper', paperId='12', paperTitle='SpaceTime TradeOffs for Banded Matrix Problems', paperYear='1984'),
+         Node('Paper', paperAbstract='From the PublisherWith this text you gain an understanding of the fundamental concepts of algorithms the very heart of computer science. It introduces the basic data structures and programming techniques often used in efficient algorithms. Covers use of lists pushdown stacks queues trees and graphs. Later chapters go into sorting searching and graphing algorithms the stringmatching algorithms and the SchonhageStrassen integermultiplication algorithm. Provides numerous graded exercises at the end of each chapter. 0201000296B04062001',
+               paperId='408638', paperTitle='The Design and Analysis of Computer Algorithms', paperYear='1974'),
+         type='refer'),
+
+ 'entity2':
+ Node('Paper', paperAbstract='From the PublisherWith this text you gain an understanding of the fundamental concepts of algorithms the very heart of computer science. It introduces the basic data structures and programming techniques often used in efficient algorithms. Covers use of lists pushdown stacks queues trees and graphs. Later chapters go into sorting searching and graphing algorithms the stringmatching algorithms and the SchonhageStrassen integermultiplication algorithm. Provides numerous graded exercises at the end of each chapter. 0201000296B04062001',
+ paperId='408638', paperTitle='The Design and Analysis of Computer Algorithms', paperYear='1974')
+ },
+
+
+ {'entity1':
+  Node('Paper', paperId='12', paperTitle='SpaceTime TradeOffs for Banded Matrix Problems', paperYear='1984'),
+
+  'rel':
+  Citation(
+  Node('Paper', paperId='12', paperTitle='SpaceTime TradeOffs for Banded Matrix Problems', paperYear='1984'),
+
+  Node('Paper', paperAbstract='Graphs that in a certain precise sense are rich in sets of vertexdisjoint paths are studied. Bounds are obtained on the minimum number of edges in such graphs and these are used to deduce nonlinear lower bounds on the computational complexity of shifting merging and matching problems.',
+  paperId='289024', paperTitle='Shifting Graphs and Their Applications', paperYear='1976'),
+
+  type='refer'),
+
+  'entity2':
+  Node('Paper', paperAbstract='Graphs that in a certain precise sense are rich in sets of vertexdisjoint paths are studied. Bounds are obtained on the minimum number of edges in such graphs and these are used to deduce nonlinear lower bounds on the computational complexity of shifting merging and matching problems.', paperId='289024', paperTitle='Shifting Graphs and Their Applications', paperYear='1976')
+  }
+
+  ]
+
+
+  json.dump()后的数据
+
+  {
+  'ctx': '"SpaceTime TradeOffs for Banded Matrix Problems"',
+  'entityRelation':
+  '[
+  {
+  "entity1": {"paperId": "12", "paperTitle": "SpaceTime TradeOffs for Banded Matrix Problems", "paperYear": "1984"},
+  "rel": {"type": "refer"},
+  "entity2": {"paperAbstract": "From the PublisherWith this text you gain an understanding of the fundamental concepts of algorithms the very heart of computer science. It introduces the basic data structures and programming techniques often used in efficient algorithms. Covers use of lists pushdown stacks queues trees and graphs. Later chapters go into sorting searching and graphing algorithms the stringmatching algorithms and the SchonhageStrassen integermultiplication algorithm. Provides numerous graded exercises at the end of each chapter. 0201000296B04062001",
+  "paperId": "408638", "paperTitle": "The Design and Analysis of Computer Algorithms", "paperYear": "1974"}
+  },
+  {
+  "entity1": {"paperId": "12", "paperTitle": "SpaceTime TradeOffs for Banded Matrix Problems", "paperYear": "1984"},
+  "rel": {"type": "refer"},
+  "entity2": {"paperAbstract": "Graphs that in a certain precise sense are rich in sets of vertexdisjoint paths are studied. Bounds are obtained on the minimum number of edges in such graphs and these are used to deduce nonlinear lower bounds on the computational complexity of shifting merging and matching problems.",
+  "paperId": "289024", "paperTitle": "Shifting Graphs and Their Applications", "paperYear": "1976"}
+  }
+  ]'
+  }
+
+
+  [
+  {"entity1": {"paperId": "12", "paperTitle": "SpaceTime TradeOffs for Banded Matrix Problems", "paperYear": "1984"},
+  "rel": {"type": "refer"},
+  "entity2": {"paperAbstract": "From the PublisherWith this text you gain an understanding of the fundamental concepts of algorithms the very heart of computer science. It introduces the basic data structures and programming techniques often used in efficient algorithms. Covers use of lists pushdown stacks queues trees and graphs. Later chapters go into sorting searching and graphing algorithms the stringmatching algorithms and the SchonhageStrassen integermultiplication algorithm. Provides numerous graded exercises at the end of each chapter. 0201000296B04062001",
+  "paperId": "408638", "paperTitle": "The Design and Analysis of Computer Algorithms", "paperYear": "1974"}},
+
+  {"entity1": {"paperId": "12", "paperTitle": "SpaceTime TradeOffs for Banded Matrix Problems", "paperYear": "1984"},
+  "rel": {"type": "refer"},
+  "entity2": {"paperAbstract": "Graphs that in a certain precise sense are rich in sets of vertexdisjoint paths are studied. Bounds are obtained on the minimum number of edges in such graphs and these are used to deduce nonlinear lower bounds on the computational complexity of shifting merging and matching problems.",
+  "paperId": "289024", "paperTitle": "Shifting Graphs and Their Applications", "paperYear": "1976"}
+  }
+  ]

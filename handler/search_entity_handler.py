@@ -31,13 +31,14 @@ def sortDict(relationDict):
 	return relationDict
 
 #实体查询
-def search_entity(entity):
+def search_entity(entity, select):
 	#根据传入的实体名称搜索出关系
 	#连接数据库
 	db = neo4jconn
 	print('测试实体查询')
 	print(entity)
-	entityRelation = db.getEntityRelationbyEntity(entity)
+	print(type(select))
+	entityRelation = db.getEntityRelationbyEntity(entity, select)
 	# print(entityRelation)
 	if len(entityRelation) == 0:
 		#若数据库中无法找到该实体，则返回数据库中无该实体

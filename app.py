@@ -2,17 +2,18 @@ from flask import Flask, render_template
 from handler import ner_handler, search_entity_handler, search_relation_handler
 from forms import NerForm, EntityForm, RelationForm
 
-
 app = Flask(__name__)
 app.secret_key = 'secret key'
 app.config['WTF_I18N_ENABLED'] = False  # 让Flask-WTF使用WTForms内置的错误消息翻译
 app.config['DEBUG'] = True
 app.debug = True
 
+
 @app.route('/')
 def index():
     ner_form = NerForm()
     return render_template('index.html', form=ner_form)
+
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -23,10 +24,12 @@ def page_not_found(e):
 def search_entity():
     entity_form = EntityForm()
     print('测试1')
-
+    # print(type(entity_form.select.choices))
+    select = entity_form.select.choices[entity_form.select.data - 1][1]
+    # print(select)
     res = {'ctx': 'padding', 'entityRelation': ''}
     if entity_form.validate_on_submit():
-        res = search_entity_handler.search_entity(entity_form.entity.data)
+        res = search_entity_handler.search_entity(entity_form.entity.data, select)  # 传入输入框信息和下拉框信息
     return render_template('entity.html', form=entity_form, ctx=res['ctx'], entityRelation=res['entityRelation'])
 
 
@@ -36,7 +39,8 @@ def search_relation():
     relation_form = RelationForm()
     res = {'ctx': '', 'searchResult': ''}
     if relation_form.validate_on_submit():
-        res = search_relation_handler.search_relation(relation_form.entity1.data, relation_form.relation.data, relation_form.entity2.data)
+        res = search_relation_handler.search_relation(relation_form.entity1.data, relation_form.relation.data,
+                                                      relation_form.entity2.data)
     return render_template('relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
 
 

@@ -1,0 +1,16 @@
+MATCH (n:Paper{Id:"2222"})-[rel]->(n1) RETURN n ,rel,n1
+
+"match (entity1:Paper) -[rel]-> (entity2:Paper) where entity1.Name = \""+ value+ "\" return entity1,rel,entity2"
+
+answer = self.graph.run("MATCH (entity1) - [rel] -> (entity2)  WHERE entity1.Name = \"" + value + "\" RETURN entity1,rel,entity2").data()
+
+
+
+#基于模糊查询  ~ ".*content.*"
+# 模糊查询2 where n.attribute Contains "content"
+# if (len(answer) == 0):
+        # 查询作者实体信息
+        answer = self.graph.run(
+        "MATCH (entity1) - [rel] - (entity2)  WHERE entity1.authorName = \"" + value + "\" RETURN entity1, rel, entity2").data()
+# answer = self.graph.run(
+        #     "MATCH (entity1) - [rel] -> (entity2) WHERE entity1.paperTitle Contains \"" + value + "\" RETURN entity1, rel, entity2").data()
