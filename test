@@ -73,3 +73,31 @@ answer = graph.run("MATCH (entity1) - [rel] -> (entity2)  WHERE entity1.paperTit
   "paperId": "289024", "paperTitle": "Shifting Graphs and Their Applications", "paperYear": "1976"}
   }
   ]
+
+
+  [
+      {'n1': Node('Paper', Id='10', Name='The ThreeMachine NoWait Flow Shop is NPComplete', Year='1984'),
+      'n2': Node('Paper', Id='289259', Name='Flowshop scheduling with limite
+    d temporary storage', Year='1980'),
+
+      'rel': Citation(Node('Paper', Id='10', Name='The ThreeMachine NoWait Flow Shop is NPComplete', Year='1984'), Node('Paper', Id='289259',
+     Name='Flowshop scheduling with limited temporary storage', Year='1980'), type='refer')
+     },
+
+     {'n1': Node('Paper', Id='289259', Name='Flowshop scheduling with limited temporary storage', Year='1980'),
+
+     'n2': Node('Paper', Abstract='From the PublisherWith this text you gain an understanding of the fundamental concepts of algorithms the very heart
+     of computer science. It introduces the basic data structures and programming techniques often used in efficient algorithms. Covers use of lists pushdown stacks queues tre
+    es and graphs. Later chapters go into sorting searching and graphing algorithms the stringmatching algorithms and the SchonhageStrassen integermultiplication algorithm. Pr
+    ovides numerous graded exercises at the end of each chapter. 0201000296B04062001', Id='408638',
+    Name='The Design and Analysis of Computer Algorithms', Year='1974'), 'rel':
+
+     Citation(Node('Paper', Id='289259', Name='Flowshop scheduling with limited temporary storage', Year='1980'), Node('Paper', Abstract='From the PublisherWith this text you
+    gain an understanding of the fundamental concepts of algorithms the very heart of computer science. It introduces the basic data structures and programming techniques ofte
+    n used in efficient algorithms. Covers use of lists pushdown stacks queues trees and graphs. Later chapters go into sorting searching and graphing algorithms the stringmat
+    ching algorithms and the SchonhageStrassen integermultiplication algorithm. Provides numerous graded exercises at the end of each chapter. 0201000296B04062001', Id='408638
+    ', Name='The Design and Analysis of Computer Algorithms', Year='1974'), type='refer')
+    }
+
+    ]
+

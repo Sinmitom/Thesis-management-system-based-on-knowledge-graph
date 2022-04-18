@@ -31,14 +31,14 @@ def search_relation(entity1, relation, entity2):
     relation_map = {1: 'refer', 2: 'test'}
     print(relation)
     # 若只输入entity1,则输出与entity1有直接关系的实体和关系
-    if len(entity1) != 0 and relation == '无限制' and len(entity2) == 0:   # relation为任何关系
+    if len(entity1) != 0 and relation == '无限制' and len(entity2) == 0:  # relation为任何关系
         searchResult = db.findRelationByEntity1(entity1)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
             return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
 
     # 若只输入entity2,则输出与entity2有直接关系的实体和关系
-    if len(entity2) != 0 and relation == '无限制' and len(entity1) == 0:   # relation 为任何关系
+    if len(entity2) != 0 and relation == '无限制' and len(entity1) == 0:  # relation 为任何关系
         searchResult = db.findRelationByEntity2(entity2)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
@@ -60,20 +60,22 @@ def search_relation(entity1, relation, entity2):
         if len(searchResult) > 0:
             return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
 
-    # 若输入entity1和entity2,则输出entity1和entity2之间的关系
+    # 若输入entity1和entity2,则输出entity1和entity2之间的最短路径
     if len(entity1) != 0 and relation == '无限制' and len(entity2) != 0:
         searchResult = db.findRelationByEntities(entity1, entity2)
-        #print(searchResult)
+        # print(searchResult)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
             return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
 
     # 若输入entity1,entity2和relation,则输出entity1、entity2是否具有相应的关系
-    if len(entity1) != 0 and len(entity2) != 0 and relation != 1:
-        relation = relation_map[relation]
+    if len(entity1) != 0 and len(entity2) != 0 and relation != '无限制':
+
         searchResult = db.findEntityRelation(entity1, relation, entity2)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
             return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
 
-    return {'ctx': 'padding', 'searchResult': ''}
+    # 全为空
+    if len(entity1) != 0 and len(relation) != 0 and len(entity2) != 0:
+        return {'ctx': 'padding', 'searchResult': ''}

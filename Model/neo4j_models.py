@@ -1,4 +1,4 @@
-from py2neo import Graph, Node, Relationship, NodeMatcher
+from py2neo import Graph, Node, Relationship, NodeMatcher, cypher, Path
 
 
 class Neo4j_Handle():
@@ -60,7 +60,7 @@ class Neo4j_Handle():
         if len(answer) == 0:  # 若输入的不是，则查找论文出版单位及其对应关系
             answer = self.graph.run(
                 "MATCH (n1) - [rel] -> (n2:Venue{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
-        if len(answer) == 0:   # 若输入的不是论文标题，则查找作者感兴趣领域
+        if len(answer) == 0:  # 若输入的不是论文标题，则查找作者感兴趣领域
             answer = self.graph.run(
                 "MATCH (n1) - [rel] -> (n2:Concept {Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
         return answer
@@ -122,33 +122,85 @@ class Neo4j_Handle():
                                     + "\"}) RETURN n1,rel,n2").data()
         return answer
 
-    # 关系查询：实体1+实体2(注意Entity2的空格）
+    # 关系查询：查询实体1和实体2它们之间的最短路径
     def findRelationByEntities(self, entity1, entity2):
-        # 标题 + 标题
-        answer = self.graph.run("MATCH (n1)- [rel {type:\"" + str(relation) + "\"}] -> (n2 {title:\"" + str(
-            entity) + "\"}) RETURN n1,rel,n2").data()
+        # 论文-论文
+        answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"}),(n2:Paper{Name:\"" +
+                                entity2 + "\"}), p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 论文-作者
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"}),(n2:Author{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 论文-作者单位
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"}),(n2:Affiliation{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 论文-论文单位
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"}),(n2:Venue{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 论文-研究领域
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"}),(n2:Concept{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
 
+        # 作者-论文
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"}),(n2:Paper{Name:\"" +
+                                    entity2 + "\"}), p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 作者-作者
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"}),(n2:Author{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN rel").evaluate()
+        # 作者-作者单位
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"}),(n2:Affiliation{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 作者-论文单位
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"}),(n2:Venue{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
+        # 作者-研究领域
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"}),(n2:Concept{Name:\"" +
+                                    entity2 + "\"}),p=shortestpath((n1)-[rel*..10]-(n2)) RETURN p").evaluate()
 
-        if (len(answer) == 0):
-            # 作者 + 标题
-            print(
-                "MATCH (n1:Author {authorName:\"" + entity1 + "\"})- [rel] -> (n2:Paper{paperTitle:\"" + entity2 + "\"}) RETURN n1,rel,n2")
-            answer = self.graph.run(
-                "MATCH (n1:Author {authorName:\"" + entity1 + "\"})- [rel] -> (n2:Paper{paperTitle:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
-
-        return answer
+        relationDict = []
+        if answer is not None:
+            print(answer)
+            for x in answer:
+                print(x)
+                tmp = {}
+                start_node = x.start_node
+                end_node = x.end_node
+                tmp['n1'] = start_node
+                tmp['n2'] = end_node
+                tmp['rel'] = x
+                relationDict.append(tmp)
+        print(relationDict)
+        return relationDict
 
     # 查询数据库中是否有对应的实体-关系匹配
     def findEntityRelation(self, entity1, relation, entity2):
-        answer = self.graph.run(
-            "MATCH (n1:Paper {paperTitle:\"" + entity1 + "\"})- [rel:Citation {type:\"" + relation + "\"}] -> (n2:Paper{paperTitle:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
-        if (len(answer) == 0):
+        answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"})- [rel:Citation {type:\"" + relation +
+                                "\"}] -> (n2:Paper{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+        if answer is None:
+            answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"})- [rel:PaperVenue {type:\"" + relation +
+                                    "\"}] -> (n2:Venue{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+
+        if answer is None:
             answer = self.graph.run(
-                "MATCH (n1:Author {authorName:\"" + entity1 + "\"})- [rel:Author_Paper {type:\"" + relation + "\"}] -> (n2:Paper{paperTitle:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
-        # if (len(answer) == 0):
-        #     answer = self.graph.run(
-        #         "MATCH (n1:Series {name:\"" + entity1 + "\"})- [rel:subbank {type:\"" + relation + "\"}] -> (n2:Bank{name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
-        # if (len(answer) == 0):
-        #     answer = self.graph.run(
-        #         "MATCH (n1:Series {name:\"" + entity1 + "\"})- [rel:subbank {type:\"" + relation + "\"}] -> (n2:Series{name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+                "MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorPaper {type:\"" + relation +
+                "\"}] -> (n2:Paper{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+
+        if answer is None:
+            answer = self.graph.run(
+                "MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorAffiliation {type:\"" + relation +
+                "\"}] -> (n2:Affiliation{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+
+        if answer is None:
+            answer = self.graph.run(
+                "MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorVenue {type:\"" + relation +
+                "\"}] -> (n2:Venue{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
+
         return answer

@@ -22,3 +22,10 @@ MATCH (n1)- [rel] -> (n2:Paper{Name:"Equational theories and database constraint
 # if (len(answer) == 0):
         #     answer = self.graph.run(
         #         "MATCH (n1)- [rel:Author_Paper {type:\"" + relation + "\"}] -> (n2:Author {authorName:\"" + entity + "\"}) RETURN n1,rel,n2").data()
+
+
+MATCH (n1:Paper {Name:"The ThreeMachine NoWait Flow Shop is NPComplete"}),(n2:Paper{Name:"The Design and Analysis of Computer Algorithms"}),
+p=shortestpath((n1)-[*..5]-(n2)) RETURN p
+
+MATCH (n1:Paper {Name:"The ThreeMachine NoWait Flow Shop is NPComplete"}),(n2:Paper{Name:"The Design and Analysis of Computer Algorithms"}),
+p=shortestpath((n1)-[*..5]-(n2)) RETURN p
