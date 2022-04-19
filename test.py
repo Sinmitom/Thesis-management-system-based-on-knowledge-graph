@@ -34,6 +34,7 @@ searchResult = json.loads(searchResult)
 print("\n传入html的值：")
 print(searchResult[0]['n1']['Name'])
 print(searchResult[1]['n2']['Name'])
+print(searchResult)
 print(len(searchResult))
 
 # 用表格列出所有的关系

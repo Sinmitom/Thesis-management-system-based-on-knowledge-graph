@@ -29,7 +29,7 @@ def search_relation(entity1, relation, entity2):
     entity1 = entity1.strip()
     entity2 = entity2.strip()
     relation_map = {1: 'refer', 2: 'test'}
-    print(relation)
+    # print(relation)
     # 若只输入entity1,则输出与entity1有直接关系的实体和关系
     if len(entity1) != 0 and relation == '无限制' and len(entity2) == 0:  # relation为任何关系
         searchResult = db.findRelationByEntity1(entity1)

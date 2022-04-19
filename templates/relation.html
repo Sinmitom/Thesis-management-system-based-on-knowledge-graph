@@ -108,7 +108,7 @@
     //构造展示的数据
     var maxDisPlayNode = 15 ;
     var id = 0 ;
-    for( var i = 0 ;id < Math.min(maxDisPlayNode,searchResult.length) && i<searchResult.length ; i++ ){
+    for( var i = 0 ;id < Math.min(maxDisPlayNode,searchResult.length+1) && i<searchResult.length+1 ; i++ ){
         //获取node1
         node1 = {} ;
         node1['name'] = searchResult[i]['n1']['Name'] ;
@@ -183,7 +183,7 @@
     }
 
     //links = []
-    //links = [{'source': '1', 'target': '2', 'category': 0, 'value': 'belong', 'symbolSize': 10},{'source': '1', 'target': '0', 'category': 0, 'value': 'belong', 'symbolSize': 10}]
+    //links = [{'source': '1', 'target': '0', 'category': 0, 'value': 'belong', 'symbolSize': 10},{'source': '0', 'target': '1', 'category': 0, 'value': 'belong', 'symbolSize': 10}]
 
      // Echarts初始化设置
     var myChart = echarts.init(document.getElementById('graph'));
