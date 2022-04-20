@@ -204,3 +204,65 @@ class Neo4j_Handle():
                 "\"}] -> (n2:Venue{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()
 
         return answer
+
+        # 添加实体
+
+    def addEntity(self, entityId, entityName, entityInfo, select):
+        # 查询实体：考虑实体1类型，查找和实体1类型相关的所有实体以及关系
+        print("测试添加实体")
+        answer = []
+        if select == 'Paper' or select == '1':  # 若添加实体1类型为论文
+            # 先查看是否已经添加过此实体
+            answer = self.graph.run(
+                "match (entity:Paper) where entity.Name = \"" + entityName + "\" and entity.Id = \"" +
+                entityId + "\"return entity").data()
+            if len(answer) != 0:  # 若已经有此实体
+                return answer
+            else:
+                answer = self.graph.run(
+                    "merge(entity:Paper{Name : \"" + entityName + "\", Id : \"" +
+                    entityId + "\" , Abstract : \"" + entityInfo + "\"}) return entity").data()
+        elif select == 'Author' or select == '2':  # 若添加实体类型为作者
+            answer = self.graph.run(
+                "match (entity:Author) where entity.Name = \"" + entityName + "\" and entity.Id = \"" +
+                entityId + "\"return entity").data()
+            if len(answer) != 0:  # 若已经有此实体
+                return answer
+            else:  # 添加作者信息
+                answer = self.graph.run(
+                    "merge(entity:Author{Name : \"" + entityName + "\", Id : \"" +
+                    entityId + "\"}) return entity").data()
+
+        elif select == 'Affiliation' or select == '3':  # 若添加实体类型为作者单位
+            answer = self.graph.run(
+                "match (entity:Affiliation) where entity.Name = \"" + entityName + "\" and entity.Id = \"" +
+                entityId + "\"return entity").data()
+            if len(answer) != 0:  # 若已经有此实体
+                return answer
+            else:  # 添加作者信息
+                answer = self.graph.run(
+                    "merge(entity:Affiliation{Name : \"" + entityName + "\", Id : \"" +
+                    entityId + "\"}) return entity").data()
+
+        elif select == 'Venue' or select == '4':  # 若添加实体类型为论文机构
+            answer = self.graph.run(
+                "match (entity:Venue) where entity.Name = \"" + entityName + "\" and entity.Id = \"" +
+                entityId + "\"return entity").data()
+            if len(answer) != 0:  # 若已经有此实体
+                return answer
+            else:  # 添加作者信息
+                answer = self.graph.run(
+                    "merge(entity:Venue{Name : \"" + entityName + "\", Id : \"" +
+                    entityId + "\"}) return entity").data()
+        elif select == 'Concept' or select == '5':  # 若添加实体类型为感兴趣领域
+            answer = self.graph.run(
+                "match (entity:Concept) where entity.Name = \"" + entityName + "\" and entity.Id = \"" +
+                entityId + "\"return entity").data()
+            if len(answer) != 0:  # 若已经有此实体
+                return answer
+            else:  # 添加作者信息
+                answer = self.graph.run(
+                    "merge(entity:Concept{Name : \"" + entityName + "\", Id : \"" +
+                    entityId + "\"}) return entity").data()
+
+        return answer

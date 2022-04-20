@@ -35,3 +35,6 @@ p=shortestpath((n1)-[*..5]-(n2)) RETURN p
 amp ciphering and deciphering machine enigma from the archives"}, "rel": {"Author_pos": "1", "type": "own"}, "relationCount": 0}, {"": {"Year": "2001", "Id": "401830", "
 Name": "The glowlamp ciphering and deciphering machine enigma from the archives"}, "n2": {"Id": "77", "Name": "Cryptologia"}, "rel": {"type": "belong"}, "relationCount": 0
 }]
+
+
+merge (n:Paper{paperTitle:"test"}) return n
