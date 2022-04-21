@@ -7,12 +7,12 @@
     <script src="/static/js/echarts.js"></script>
     
 </head>
-<title>关系</title>
+<title>更新关系</title>
 <div class="container">
     <div class="row">
     <!--head start-->
     <div class="col-md-12">
-        <h3 class="page-header"><i class="fa fa-link" aria-hidden="true"></i> 关系查询 </h3>
+        <h3 class="page-header"><i class="fa fa-link" aria-hidden="true"></i> 更新关系 </h3>
             <ol class="breadcrumb">
                 <li><i class="fa fa-home"></i><a href="\search_entity">主页</a></li>
                 <li><i class="fa fa-link" aria-hidden="true"></i>关系查询</li>
@@ -22,15 +22,15 @@
     <div class = "col-md-12">
     	<div class = "panel panel-default">
 			<header class="panel-heading">
-            查询条件：
+            更新条件：
        		</header>
        		<div class = "panel-body">
-				<form method="post" action="/search_relation">
+				<form method="post" >
                     {{ form.csrf_token }}
 					<div class="input-group">
 						{{ form.entity1(class="form-control", placeholder="实体１", style="width:200px;margin:0px 20px;") }}
 						{{ form.relation(class="form-control", style="width:200px;margin:0px 20px;") }}
-						{{ form.entity2(class="form-control", placeholder="实体2", style="width:200px;margin:0px 20px;") }}
+						{{ form.entity2(class="form-control", placeholder="实体2 ", style="width:200px;margin:0px 20px;") }}
 						{{ form.submit(class="btn btn-primary", style="background-color:#4592fe;margin:0px 20px;") }}
 					</div>
                 </form>
@@ -41,7 +41,7 @@
 	<div class = "col-md-12">
 		<div class = "panel panel-default">
 			<header class = "panel-heading">
-				查询结果：
+				更新关系结果：
 			</header>
 			<div class = "panel-body">
 				<div style="padding: 2%">
@@ -92,7 +92,6 @@
         relationData['entity2'] = searchResult[i]['n2']['Name'] ;
         tableData.push(relationData) ;
     }
-    console.log("table", tableData)
     jQuery(function(){
         $('.table').footable({
         "columns": [{"name":"entity1",title:"Entity1"} ,
@@ -182,8 +181,6 @@
         }
 
     }
-    console.log("data", data)
-    console.log("links", links)
 
     //links = []
     //links = [{'source': '1', 'target': '0', 'category': 0, 'value': 'belong', 'symbolSize': 10},{'source': '0', 'target': '1', 'category': 0, 'value': 'belong', 'symbolSize': 10}]

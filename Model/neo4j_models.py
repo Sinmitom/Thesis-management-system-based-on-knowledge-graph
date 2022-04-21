@@ -266,3 +266,49 @@ class Neo4j_Handle():
                     entityId + "\"}) return entity").data()
 
         return answer
+
+    def updateRelation1(self, entity1, relation, entity2):  # 论文引用关系
+        answer = self.graph.run("MATCH (n1:Paper {Name:\"" + entity1 + "\"})- [rel:Citation {type:\"" + relation +
+                                "\"}] -> (n2:Paper{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()  # 查看是否已经有此关系
+        print("究极测试", len(answer))
+        if len(answer) == 0:  # 若关系不存在，则添加关系
+            answer = self.graph.run("MATCH (n1:Paper{Name:\"" + entity1 + "\"}), (n2:Paper{Name:\"" + entity2 +
+                                    "\"}) MERGE (n1)-[rel: Citation{type:\"" + relation + "\"}]->(n2) RETURN n1,rel,n2").data()  # 创建论文引用关系
+        return answer  # 若关系存在，则返回此关系数据
+
+    def updateRelation2(self, entity1, relation, entity2):  # 作者-论文关系
+        answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorPaper {type:\"" + relation +
+                                "\"}] -> (n2:Paper{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()  # 查看是否已经有此关系
+        print("究极测试", len(answer))
+        if len(answer) == 0:  # 若关系不存在，则添加关系
+            answer = self.graph.run("MATCH (n1:Author{Name:\"" + entity1 + "\"}), (n2:Paper{Name:\"" + entity2 +
+                                    "\"}) MERGE (n1)-[rel: AuthorPaper{type:\"" + relation + "\"}]->(n2) RETURN n1,rel,n2").data()  # 创建论文引用关系
+        return answer  # 若关系存在，则返回此关系数据
+
+    def updateRelation3(self, entity1, relation, entity2):  # 作者-机构关系 or论文-单位关系
+        answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorPaper {type:\"" + relation +
+                                "\"}] -> (n2:Affiliation{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()  # 查看是否已经有作者-机构关系
+        print("究极测试", len(answer))
+        if len(answer) == 0:  # 若关系不存在，则接着查询论文-单位关系
+            answer = self.graph.run(
+                "MATCH (n1:Paper {Name:\"" + entity1 + "\"})- [rel:AuthorPaper {type:\"" + relation +
+                "\"}] -> (n2:Venue{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()  # 查看是否已经有此关系
+            if len(answer) == 0:
+                answer = self.graph.run(
+                    "MATCH (n1:Author{Name:\"" + entity1 + "\"}), (n2:Affiliation{Name:\"" + entity2 +
+                    "\"}) MERGE (n1)-[rel:AuthorAffiliation{type:\"" + relation + "\"}]->(n2) RETURN n1,rel,n2").data()  # 创建作者-机构引用关系
+                if len(answer) == 0:
+                    answer = self.graph.run(
+                        "MATCH (n1:Paper{Name:\"" + entity1 + "\"}), (n2:Venue{Name:\"" + entity2 +
+                        "\"}) MERGE (n1)-[rel:PaperVenue{type:\"" + relation + "\"}]->(n2) RETURN n1,rel,n2").data()  # 创建论文-单位引用关系
+
+        return answer  # 若关系存在，则返回此关系数据
+
+    def updateRelation4(self, entity1, relation, entity2):  # 作者-感兴趣领域关系
+        answer = self.graph.run("MATCH (n1:Author {Name:\"" + entity1 + "\"})- [rel:AuthorPaper {type:\"" + relation +
+                                "\"}] -> (n2:Concept{Name:\"" + entity2 + "\"}) RETURN n1,rel,n2").data()  # 查看是否已经有此关系
+        print("究极测试", len(answer))
+        if len(answer) == 0:  # 若关系不存在，则添加关系
+            answer = self.graph.run("MATCH (n1:Author{Name:\"" + entity1 + "\"}), (n2:Concept{Name:\"" + entity2 +
+                                    "\"}) MERGE (n1)-[rel: AuthorConcept{type:\"" + relation + "\"}]->(n2) RETURN n1,rel,n2").data()  # 创建论文引用关系
+        return answer  # 若关系存在，则返回此关系数据

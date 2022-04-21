@@ -1,32 +1,101 @@
-# 遇上csv文件乱码，先用 记事本 打开文件，在另存为csv文件时选择utf-8转码
+#导入作者信息*
 
-# MATCH (n) detach delete n
+:auto USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///paper///e_author.csv" AS line
+CREATE (Author:Author{Id:line.authorID, Name:line.authorName, pc:line.pc, cn:line.cn, hi:line.hi, pi:line.pi, upi:line.upi})
 
-# 导入作者信息
-LOAD CSV WITH HEADERS FROM "file:///citation///e_author_info.csv" AS line
-CREATE (Author:Author{authorId:line.authorID, authorName:line.authorName, pc:line.pc, cn:line.cn, hi:line.hi, pi:line.pi, upi:line.upi})
+#创建索引
+CREATE INDEX ON: Author(Id)
+CREATE INDEX ON: Author(Name)
 
-# 导入作者与论文的关系
-LOAD CSV WITH HEADERS FROM "file:///citation///r_author_own.csv" AS line
-MATCH (FROM:Author{authorId:line.START_ID}), (TO:Paper{paperId:line.END_ID})
-MERGE (FROM)-[Author_Paper: Author_Paper{type:line.TYPE, author_pos:line.author_position}]->(TO)
+#导入论文信息*
 
-# 导入单位信息
-LOAD CSV WITH HEADERS FROM "file:///citation///e_affiliation_info.csv" AS line
-CREATE (Affiliation:Affiliation{affiliationId:line.affiliationId, affiliationName:line.affiliationName})
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///e_paper.csv" AS line
+CREATE (Paper:Paper{Id:line.paperID, Name:line.title, Year:line.year, Abstract:line.abstract})
+
+#创建索引
+CREATE INDEX ON: Paper(Id)
+CREATE INDEX ON: Paper(Name)
+#导入作者单位信息*
+
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///e_affiliation.csv" AS line
+CREATE (Affiliation:Affiliation{Id:line.affiliationID, Name:line.affiliationName})
+#创建索引
+CREATE INDEX ON: Affiliation(Id)
+CREATE INDEX ON: Affilication(Name)
 
 
-# 导入作者与单位的关系
-LOAD CSV WITH HEADERS FROM "file:///citation///r_author_belong.csv" AS line
-MATCH (FROM:Author{authorId:line.START_ID}), (TO:Affiliation{affiliationId:line.END_ID})
-MERGE (FROM)-[Author_Affiliaion: Author_Affiliaion{type:line.TYPE}]->(TO)
+
+#导入论文发表机构信息*
+
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///e_venue.csv" AS line
+CREATE (Venue:Venue{Id:line.venueID, Name:line.name})
+#创建索引
+CREATE INDEX ON: Venue(Id)
+CREATE INDEX ON: Venue(Name)
+
+#导入作者感兴趣领域信息*
+
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///e_concept.csv" AS line
+CREATE (Concept:Concept{Id:line.conceptID, Name:line.conceptName})
+#创建索引
+create index on:Concept(Id)
+create index on:Concept(Name)
 
 
-CREATE CONSTRAINT FOR (b: Bank)
-ASSERT b.name is UNIQUE
 
-match (n:Series) return n LIMIT 25
 
+
+
+
+#导入论文-论文的关系*
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///r_citation.csv" AS line
+MATCH (FROM:Paper{Id:line.START_ID}), (TO:Paper{Id:line.END_ID})
+MERGE (FROM)-[Citation: Citation{type:line.TYPE}]->(TO)
+
+
+#导入作者-论文关系*
+:auto USING PERIODIC COMMIT 20000
+LOAD CSV WITH HEADERS FROM "file:///paper///r_author2paper.csv" AS line
+MATCH (FROM:Author{Id:line.START_ID}), (TO:Paper{Id:line.END_ID})
+MERGE (FROM)-[AuthorPaper: AuthorPaper{type:line.TYPE, Author_pos:line.author_position}]->(TO)
+
+
+
+#导入作者-单位关系*
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///r_author2affiliation.csv" AS line
+MATCH (FROM:Author{Id:line.START_ID}), (TO:Affiliation{Id:line.END_ID})
+MERGE (FROM)-[AuthorAffiliation: AuthorAffiliation{type:line.TYPE}]->(TO)
+
+
+#导入论文-发表机构关系*
+:auto USING PERIODIC COMMIT 15000
+LOAD CSV WITH HEADERS FROM "file:///paper///r_paper2venue.csv" AS line
+MATCH (FROM:Paper{Id:line.START_ID}), (TO:Venue{Id:line.END_ID})
+MERGE (FROM)-[PaperVenue: PaperVenue{type:line.TYPE}]->(TO)
+
+#导入作者-感兴趣领域关系
+:auto USING PERIODIC COMMIT 10000
+LOAD CSV WITH HEADERS FROM "file:///paper///r_author2concept.csv" AS line
+MATCH (FROM:Author{Id:line.START_ID}), (TO:Concept{Id:line.END_ID})
+MERGE (FROM)-[AuthorConcept: AuthorConcept{type:line.TYPE}]->(TO)
+
+
+#导入作者-作者合作关系
+:auto USING PERIODIC COMMIT 5000
+LOAD CSV WITH HEADERS FROM "file:///r_coAuthor.csv" AS line
+MATCH (FROM:Author{Id:line.START_ID}), (TO:Author{Id:line.END_ID})
+MERGE (FROM)<-[Coauthor: Coauthor{type:line.TYPE, n_cooperation:line.n_cooperation}]->(TO)
+
+
+
+#创建索引
 
 
 

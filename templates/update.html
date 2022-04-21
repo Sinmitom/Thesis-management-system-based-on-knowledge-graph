@@ -31,7 +31,7 @@
 					<div class="input-group">
 						<div class="layui-input-inline" style="width: 300px;">
 
-							<select name="selectBox" id="selectBox" lay-filter="selectBox" onchange="showform()">
+							<select name="selectBox" id="selectBox" lay-filter="selectBox" onchange="showform()" >
 								<option value="0">选择实体类型</option>
 								<option value="1">Paper</option>
 								<option value="2">Author</option>
@@ -190,7 +190,7 @@ for (var i = 0; id < Math.min(maxDisPlayNode, entityRelation.length) && i < enti
         id++;
         data.push(node1);
     }
-
+}
 
 
     //links = []
@@ -284,7 +284,7 @@ for (var i = 0; id < Math.min(maxDisPlayNode, entityRelation.length) && i < enti
     };
     // 使用刚指定的配置项和数据显示图表。
     myChart.setOption(option);
-}
+
 </script>
 
 {% endif %}

@@ -1,7 +1,8 @@
 import json
 
 from flask import request, flash, url_for, Flask, render_template, redirect
-from handler import ner_handler, search_entity_handler, search_relation_handler, update_entity_handler
+from handler import ner_handler, search_entity_handler, search_relation_handler, update_entity_handler, \
+    update_relation_handler
 from forms import NerForm, EntityForm, RelationForm
 from flask_sqlalchemy import SQLAlchemy  # 导入扩展类
 import os
@@ -116,10 +117,9 @@ def search_relation():
     if relation_form.validate_on_submit():
         res = search_relation_handler.search_relation(relation_form.entity1.data, relation,
                                                       relation_form.entity2.data)
-
     # print('*'*50)
-    # print('*'*50)
-    # print(res['searchResult'])
+    print('*'*50)
+    print(res['searchResult'])
     return render_template('relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
 
 
@@ -266,3 +266,20 @@ def update():  # 更新图谱
             print(type(temp))
             print(temp)
     return render_template('update.html', ctx=res['ctx'], entityRelation=res['entityRelation'])
+
+
+@app.route('/update_relation', methods=['GET', 'POST'])
+@login_required  # 用于视图保护
+def update_relation():  # 更新图谱关系
+    res = {'ctx': '', 'searchResult': ''}
+    relation_form = RelationForm()
+    relation = relation_form.relation.choices[relation_form.relation.data - 1][1]  # 相应的关系
+    print('更新关系测试1', relation_form.entity1.data, relation, relation_form.entity2.data)
+    if relation_form.validate_on_submit():
+
+        res = update_relation_handler.update_relation(relation_form.entity1.data, relation,
+                                                      relation_form.entity2.data)
+        print('更新关系测试2', res['ctx'], res['searchResult'])
+
+
+    return render_template('update_relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
