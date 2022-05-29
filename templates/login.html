@@ -1,12 +1,51 @@
-{% extends "navigate.html" %} {% block mainbody %}
-<h3>Login</h3>
-<form method="post">
-    Username<br>
-    <input type="text" name="username" required><br><br>
-    Password<br>
-    <!-- 密码输入框的 type 属性使用 password，会将输入值显示为圆点 -->
-    <input type="password" name="password" required><br><br>
-    <input class="button" type="submit" name="submit" value="Submit">
-</form>
+{% extends "navigate.html" %}
+{% block mainbody %}
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="/static/js/echarts.js"></script>
+</head>
+
+<title>用户认证</title>
+<div class="container">
+    <div class="row">
+    <!--head start-->
+    <div class="col-md-12">
+            <ol class="breadcrumb">
+                <li><i class="fa fa-home"></i><a href="\search_entity">Home</a></li>
+                <li><i class="fa fa-share-alt" aria-hidden="true"></i>用户认证</li>
+            </ol>
+    </div>
+    <div class = "col-md-12">
+        <div class="panel panel-default ">
+            <header class = "panel-heading">
+                用户认证模块🍉
+            </header>
+            <div class = "panel-body">
+                <!--搜索框-->
+                <form method="post">
+                    <div>
+                        {{ form.csrf_token }}
+                        <div class="input-group">
+                            <label style="width:50px; font-size: 14px;">用户名:</label>
+                            {{ form.username(class="form-control", placeholder="输入用户名",style="width:250px;margin:10px 20px;") }}
+                            <br>
+                            <label style="width:50px; font-size: 14px;">密 码：</label>
+                            {{ form.password(class="form-control", placeholder="输入密码" ,style="width:250px;margin:10px 20px;")}}
+                            {% if message %}
+                                <br>
+                                <small style="color:#f9002f; margin:2px 70px;"> {{message}}</small>
+                            {%endif%}
+                             <br>
+							{{ form.submit(class="btn btn-primary", style="background-color:#4592fe; margin: 10px 70px; width:250px; height:100%") }}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
 
 {% endblock %}

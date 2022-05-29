@@ -3,7 +3,7 @@ import json
 from flask import request, flash, url_for, Flask, render_template, redirect
 from handler import ner_handler, search_entity_handler, search_relation_handler, update_entity_handler, \
     update_relation_handler
-from forms import NerForm, EntityForm, RelationForm
+from forms import NerForm, EntityForm, RelationForm, LoginForm, UpdateForm
 from flask_sqlalchemy import SQLAlchemy  # 导入扩展类
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,6 +24,7 @@ login_manager.login_view = 'login'
 
 
 class User(db.Model, UserMixin):
+    # 管理员用户类
     id = db.Column(db.Integer, primary_key=True)  # 主键
     name = db.Column(db.String(20))  # 名字
     username = db.Column(db.String(20))  # 用户名
@@ -53,7 +54,6 @@ def initdb(drop):
 def admin(username, password):
     """Create user."""
     db.create_all()
-
     user = User.query.first()
     if user is not None:
         click.echo('Updating user...')
@@ -64,7 +64,6 @@ def admin(username, password):
         user = User(username=username, name='Admin')
         user.set_password(password)  # 设置密码
         db.session.add(user)
-
     db.session.commit()  # 提交数据库会话
     click.echo('Done.')
 
@@ -75,7 +74,7 @@ def load_user(user_id):  # 创建用户加载回调函数，接受用户 ID 作�
     return user  # 返回用户对象
 
 
-@app.route('/')
+@app.route('/')  # 主页
 def index():
     entity_form = EntityForm()
     # print('测试1')
@@ -94,33 +93,41 @@ def page_not_found(e):
 
 
 @app.route('/search_entity', methods=['GET', 'POST'])
-def search_entity():
+def search_entity():  # 实体查询功能
     entity_form = EntityForm()
-    print('测试1')
-    # print(type(entity_form.select.choices))
+    print('测试实体查询')
+    # print(entity_form.select.choices)
     select = entity_form.select.choices[entity_form.select.data - 1][1]
     # print(select)
     res = {'ctx': 'padding', 'entityRelation': ''}
     if entity_form.validate_on_submit():
         res = search_entity_handler.search_entity(entity_form.entity.data, select)  # 传入输入框信息和下拉框信息
         print(res)
-    return render_template('entity.html', form=entity_form, ctx=res['ctx'], entityRelation=res['entityRelation'])
+    return render_template('entity.html', form=entity_form, ctx=res['ctx'], entityRelation=res['entityRelation'],
+                           select=select)
 
 
 @app.route('/search_relation', methods=['GET', 'POST'])
 def search_relation():
     # 基于关系查询
+    message = ""
+    mode = 1  # mode为1为关系查询
+    flag = 0  # 类别标志0为论文，1为作者
     relation_form = RelationForm()
     relation = relation_form.relation.choices[relation_form.relation.data - 1][1]  # 相应的查找关系
     print('关系查询测试')
     res = {'ctx': '', 'searchResult': ''}
     if relation_form.validate_on_submit():
-        res = search_relation_handler.search_relation(relation_form.entity1.data, relation,
-                                                      relation_form.entity2.data)
-    # print('*'*50)
+        if len(relation_form.entity1.data) != 0 and len(relation_form.entity2.data) != 0 and relation == "无限制":
+            mode = 2  # mode为2为路径查询
+        if len(relation_form.entity1.data) == 0 and len(relation_form.entity2.data) == 0:
+            message = "这怎么查询(╯▔皿▔)╯！请输入信息！"
+        res, flag = search_relation_handler.search_relation(relation_form.entity1.data, relation,
+                                                            relation_form.entity2.data)
     print('*' * 50)
-    print(res['searchResult'])
-    return render_template('relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
+    print(res)
+    return render_template('relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'],
+                           mode=mode, f=flag, message=message)
 
 
 @app.route('/ner-post', methods=['POST'])
@@ -134,28 +141,27 @@ def ner_post():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        print(username)
-        print(password)
-        if not username or not password:
-            flash('Invalid input.')
-            return redirect(url_for('login'))
-
-        user = User.query.first()
-        print(user)
-        print(user.validate_password(password))
-        # 验证用户名和密码是否一致
+    # 测试登录功能
+    login_form = LoginForm()
+    username = login_form.username.data
+    password = login_form.password.data
+    user = User.query.first()
+    message = ""
+    if login_form.is_submitted():
         if username == user.username and user.validate_password(password):
             login_user(user)  # 登入用户
             flash('Login success.')
+            print('登录成功！')
             return redirect(url_for('search_entity'))  # 重定向到主页
-
-        flash('Invalid username or password.')  # 如果验证失败，显示错误消息
-        return redirect(url_for('login'))  # 重定向回登录页面
-
-    return render_template('login.html')
+        elif username != user.username:
+            message = "无此账户名信息！"
+            print(message)
+        elif not user.validate_password(password):
+            message = "密码输入错误！"
+            print(message)
+    print('测试登录功能', user.username == username, password)
+    # print(user.validate_password(password), login_form.password.errors)
+    return render_template('login.html', form=login_form, message=message)
 
 
 @app.route('/logout')
@@ -169,213 +175,161 @@ def logout():
 @app.route('/update', methods=['GET', 'POST'])
 @login_required  # 用于视图保护
 def update():  # 更新图谱
-
+    update_form = UpdateForm()
     res = {'ctx': 'padding', 'entityRelation': ''}
-    if request.method == 'POST':  # 判断是否是 POST 请求
-        # 获取表单数据
-        selectFunction = request.form.get('selectFunction')  # 选择相应功能
-        print("添加实体测试", selectFunction)
-        if selectFunction == '1':    # 选择添加实体功能
-
-            select = request.form.get('selectBox')  # 传入select 表单选择的内容
+    message = ""
+    if update_form.is_submitted():
+        selectFunction = update_form.selectFunction.data  # 选择相应功能
+        if selectFunction == 1:  # 选择添加实体功能
+            select = update_form.selectBox.data  # 传入select 表单选择的内容
             print("添加实体测试", type(select))
-            if select == '1':
+            if select == 1:
                 # 验证数据
-                paperId = request.form.get('paperId')
-                paperTitle = request.form.get('paperTitle')
-                paperYear = request.form.get('paperYear')
-                if not paperId or not paperTitle or len(paperYear) > 4 or len(paperTitle) < 2:
+                paperId = update_form.paperId.data
+                paperTitle = update_form.paperTitle.data
+                paperYear = update_form.paperYear.data
+                if len(paperId) == 0 or len(paperTitle) == 0 or len(paperYear) != 4 or len(paperTitle) < 2:
+                    if len(paperId) == 0 or len(paperTitle) == 0:
+                        message += "Id号和标题不能为空！"
+                    elif len(paperYear) != 4 or int(paperYear) > 2022:
+                        message += "年份输入格式有误！"
+                    elif len(paperTitle) < 2:
+                        message += "标题输入过短！"
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
-
+                    return render_template('update.html', form=update_form, message=message)
                 res = update_entity_handler.add_entity(paperId, paperTitle, select, paperYear)  # 传入输入框信息和下拉框信息
                 print(res)
-                print(res['entityRelation'], res['ctx'])
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-                print(temp[0]['entity']['Id'])
-                print(temp[0]['entity']['Name'])
-                # print(res['entityRelation']['entity']['Id'])
-                # print('测试表单')
-                # print('*'*50)
-                # print(select, paperId)
-            #     #保存表单数据到数据库
-            #     movie = Movie(title=title, year=year)  # 创建记录
-            #     db.session.add(movie)  # 添加到数据库会话
-            #     db.session.commit()  # 提交数据库会话
-            #     flash('Item created.')  # 显示成功创建的提示
-            #     return redirect(url_for('index'))  # 重定向回主页
-            #
-            # movies = Movie.query.all()
-            # return render_template('index.html', movies=movies)
-            # flash("update.")
-            elif select == '2':
+
+            elif select == 2:
                 # 验证数据
-                authorId = request.form.get('authorId')
-                authorName = request.form.get('authorName')
+                authorId = update_form.authorId.data
+                authorName = update_form.authorName.data
                 print(authorName)
                 if not authorId or not authorName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
-
+                    return render_template('update.html', form=update_form, message=message)
                 res = update_entity_handler.add_entity(authorId, authorName, select)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
 
-            elif select == '3':  # 添加机构信息
+            elif select == 3:  # 添加机构信息
                 # 验证数据
-                affiliationId = request.form.get('affiliationId')
-                affiliationName = request.form.get('affiliationName')
+                affiliationId = update_form.affiliationId.data
+                affiliationName = update_form.affiliationName.data
                 print(affiliationName)
                 if not affiliationId or not affiliationName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
-
+                    return render_template('update.html', form=update_form, message=message)
                 res = update_entity_handler.add_entity(affiliationId, affiliationName, select)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
 
-            elif select == '4':  # 添加Venue信息
+            elif select == 4:  # 添加Venue信息
                 # 验证数据
-                venueId = request.form.get('venueId')
-                venueName = request.form.get('venueName')
+                venueId = update_form.venueId.data
+                venueName = update_form.venueName.data
                 print(venueName)
                 if not venueId or not venueName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
-
+                    return render_template('update.html', form=update_form, message=message)
                 res = update_entity_handler.add_entity(venueId, venueName, select)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-            elif select == '5':  # 添加Concept信息
+
+            elif select == 5:  # 添加Concept信息
                 # 验证数据
-                conceptId = request.form.get('conceptId')
-                conceptName = request.form.get('conceptName')
+                conceptId = update_form.conceptId.data
+                conceptName = update_form.conceptName.data
                 print(conceptName)
                 if not conceptId or not conceptName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
+                    return render_template('update.html', form=update_form, message=message)
 
                 res = update_entity_handler.add_entity(conceptId, conceptName, select)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-        elif selectFunction == '2':   # 选择删除功能
-            select1 = request.form.get('selectBox1')  # 传入select 表单选择的内容
-            # print(type(select))
-            if select1 == '1':
-                # 验证数据
-                paperId1 = request.form.get('paperId1')
-                paperTitle1 = request.form.get('paperTitle1')
-                paperYear1 = request.form.get('paperYear1')
-                if not paperId1 or not paperTitle1 or len(paperYear1) > 4 or len(paperTitle1) < 2:
-                    flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
 
-                res = update_entity_handler.delete_entity(paperId1, paperTitle1, select1, paperYear1)  # 传入输入框信息和下拉框信息
+        elif selectFunction == 2:
+            # 选择删除实体功能
+            select = update_form.selectBox.data  # 传入select 表单选择的内容
+            print("删除实体测试", type(select))
+            if select == 1:
+                # 验证数据
+                paperId = update_form.paperId.data
+                paperTitle = update_form.paperTitle.data
+                paperYear = update_form.paperYear.data
+                if len(paperTitle) == 0:
+                    flash('非法输入！')  # 显示错误
+                    if len(paperTitle) == 0:
+                        message += "论文标题不能为空！"
+                    elif len(paperTitle) < 2:
+                        message += "标题输入过短！"
+                    return render_template('update.html', form=update_form, message=message)
+                res = update_entity_handler.delete_entity(paperId, paperTitle, select, paperYear)  # 传入输入框信息和下拉框信息
                 print(res)
-                print(res['entityRelation'], res['ctx'])
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-                print(temp[0]['entity']['Id'])
-                print(temp[0]['entity']['Name'])
-                # print(res['entityRelation']['entity']['Id'])
-                # print('测试表单')
-                # print('*'*50)
-                # print(select, paperId)
-            #     #保存表单数据到数据库
-            #     movie = Movie(title=title, year=year)  # 创建记录
-            #     db.session.add(movie)  # 添加到数据库会话
-            #     db.session.commit()  # 提交数据库会话
-            #     flash('Item created.')  # 显示成功创建的提示
-            #     return redirect(url_for('index'))  # 重定向回主页
-            #
-            # movies = Movie.query.all()
-            # return render_template('index.html', movies=movies)
-            # flash("update.")
-            elif select1 == '2':
+            elif select == 2:
                 # 验证数据
-                authorId1 = request.form.get('authorId1')
-                authorName1 = request.form.get('authorName1')
-                print(authorName1)
-                if not authorId1 or not authorName1:
+                authorId = update_form.authorId.data
+                authorName = update_form.authorName.data
+                print(authorName)
+                if not authorName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
+                    return render_template('update.html', form=update_form, message=message)
+                res = update_entity_handler.delete_entity(authorId, authorName, select)  # 传入输入框信息和下拉框信息
 
-                res = update_entity_handler.add_entity(authorId1, authorName1, select1)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-
-            elif select1 == '3':  # 添加机构信息
+            elif select == 3:  # 删除机构信息
                 # 验证数据
-                affiliationId1 = request.form.get('affiliationId1')
-                affiliationName1 = request.form.get('affiliationName1')
-                print(affiliationName1)
-                if not affiliationId1 or not affiliationName1:
+                affiliationId = update_form.affiliationId.data
+                affiliationName = update_form.affiliationName.data
+                print(affiliationName)
+                if not affiliationName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
+                    return render_template('update.html', form=update_form, message=message)
+                res = update_entity_handler.delete_entity(affiliationId, affiliationName, select)  # 传入输入框信息和下拉框信息
 
-                res = update_entity_handler.add_entity(affiliationId1, affiliationName1, select1)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-
-            elif select1 == '4':  # 添加Venue信息
+            elif select == 4:  # 删除Venue信息
                 # 验证数据
-                venueId1 = request.form.get('venueId1')
-                venueName1 = request.form.get('venueName1')
-                print(venueName1)
-                if not venueId1 or not venueName1:
+                venueId = update_form.venueId.data
+                venueName = update_form.venueName.data
+                print(venueName)
+                if not venueName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
+                    return render_template('update.html', form=update_form, message=message)
 
-                res = update_entity_handler.add_entity(venueId1, venueName1, select1)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-            elif select1 == '5':  # 添加Concept信息
+                res = update_entity_handler.delete_entity(venueId, venueName, select)  # 传入输入框信息和下拉框信息
+
+            elif select == 5:  # 删除Concept信息
                 # 验证数据
-                conceptId1 = request.form.get('conceptId1')
-                conceptName1 = request.form.get('conceptName1')
-                print(conceptName1)
-                if not conceptId1 or not conceptName1:
+                conceptId = update_form.conceptId.data
+                conceptName = update_form.conceptName.data
+                print(conceptName)
+                if not conceptName:
+                    message = '输入信息格式有误！'
                     flash('非法输入！')  # 显示错误
-                    return redirect(url_for('update'))  # 重定向回主页
+                    return render_template('update.html', form=update_form, message=message)
+                res = update_entity_handler.delete_entity(conceptId, conceptName, select)  # 传入输入框信息和下拉框信息
 
-                res = update_entity_handler.add_entity(conceptId1, conceptName1, select1)  # 传入输入框信息和下拉框信息
-                temp = json.loads(res['entityRelation'])
-                print(len(temp))
-                print(type(temp))
-                print(temp)
-
-    return render_template('update.html', ctx=res['ctx'], entityRelation=res['entityRelation'])
+    return render_template('update.html', form=update_form, ctx=res['ctx'], entityRelation=res['entityRelation'])
 
 
 @app.route('/update_relation', methods=['GET', 'POST'])
 @login_required  # 用于视图保护
 def update_relation():  # 更新图谱关系
     res = {'ctx': '', 'searchResult': ''}
+    selectFunction = -1
     relation_form = RelationForm()
     relation = relation_form.relation.choices[relation_form.relation.data - 1][1]  # 相应的关系
     print('更新关系测试1', relation_form.entity1.data, relation, relation_form.entity2.data)
     if relation_form.validate_on_submit():
-        res = update_relation_handler.update_relation(relation_form.entity1.data, relation,
-                                                      relation_form.entity2.data)
-        print('更新关系测试2', res['ctx'], res['searchResult'])
+        selectFunction = relation_form.selectFunction.data
+        if selectFunction == 1:  # 添加关系
+            res = update_relation_handler.update_relation(relation_form.entity1.data, relation,
+                                                          relation_form.entity2.data)
+            print('更新关系测试2', res)
 
-    return render_template('update_relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'])
+        else:   # 删除关系
+            res = update_relation_handler.delete_relation(relation_form.entity1.data, relation,
+                                                          relation_form.entity2.data)
+            print(res)
+            #print('更新关系测试2', res['ctx'], res['searchResult'])
+    return render_template('update_relation.html', form=relation_form, ctx=res['ctx'], searchResult=res['searchResult'],
+                           selectFunction=selectFunction)

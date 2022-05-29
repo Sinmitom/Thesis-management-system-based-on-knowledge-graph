@@ -93,8 +93,6 @@ LOAD CSV WITH HEADERS FROM "file:///r_coAuthor.csv" AS line
 MATCH (FROM:Author{Id:line.START_ID}), (TO:Author{Id:line.END_ID})
 MERGE (FROM)<-[Coauthor: Coauthor{type:line.TYPE, n_cooperation:line.n_cooperation}]->(TO)
 
-
-
 #创建索引
 
 

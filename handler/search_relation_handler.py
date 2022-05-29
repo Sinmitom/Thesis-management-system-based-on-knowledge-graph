@@ -32,50 +32,53 @@ def search_relation(entity1, relation, entity2):
     # print(relation)
     # 若只输入entity1,则输出与entity1有直接关系的实体和关系
     if len(entity1) != 0 and relation == '无限制' and len(entity2) == 0:  # relation为任何关系
-        searchResult = db.findRelationByEntity1(entity1)
+        searchResult, flag = db.findRelationByEntity1(entity1)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 若只输入entity2,则输出与entity2有直接关系的实体和关系
     if len(entity2) != 0 and relation == '无限制' and len(entity1) == 0:  # relation 为任何关系
-        searchResult = db.findRelationByEntity2(entity2)
+        searchResult, flag = db.findRelationByEntity2(entity2)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 若输入entity1和relation，则输出与entity1具有relation关系的其他实体
     if len(entity1) != 0 and relation != '无限制' and len(entity2) == 0:
-
-        searchResult = db.findOtherEntities(entity1, relation)
+        searchResult, flag = db.findOtherEntities(entity1, relation)
         searchResult = sortDict(searchResult)
+        print(searchResult, len(searchResult))
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 若输入entity2和relation，则输出与entity2具有relation关系的其他实体
     if len(entity2) != 0 and relation != '无限制' and len(entity1) == 0:
 
-        searchResult = db.findOtherEntities2(entity2, relation)
+        searchResult, flag = db.findOtherEntities2(entity2, relation)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 若输入entity1和entity2,则输出entity1和entity2之间的最短路径
     if len(entity1) != 0 and relation == '无限制' and len(entity2) != 0:
-        searchResult = db.findRelationByEntities(entity1, entity2)
+        searchResult, flag = db.findRelationByEntities(entity1, entity2)
         # print(searchResult)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 若输入entity1,entity2和relation,则输出entity1、entity2是否具有相应的关系
     if len(entity1) != 0 and len(entity2) != 0 and relation != '无限制':
 
-        searchResult = db.findEntityRelation(entity1, relation, entity2)
+        searchResult, flag = db.findEntityRelation(entity1, relation, entity2)
         searchResult = sortDict(searchResult)
         if len(searchResult) > 0:
-            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}
+            return {'ctx': '', 'searchResult': json.dumps(searchResult, ensure_ascii=False)}, flag
 
     # 全为空
     if len(entity1) != 0 and len(relation) != 0 and len(entity2) != 0:
-        return {'ctx': 'padding', 'searchResult': ''}
+        flag = -1
+        return {'ctx': 'padding', 'searchResult': ''}, flag
+    flag = -1
+    return {'ctx': 'padding', 'searchResult': ''}, flag

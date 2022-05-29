@@ -52,14 +52,14 @@
                 <div>
                     <ul class="nav navbar-nav">
                         <li><a href="/search_entity">实体查询</a></li>
+                        <li><a href="/search_relation">关系查询</a></li>
                         {% if current_user.is_authenticated %}
-                            <li><a href="/search_relation">关系查询</a></li>
-<!--                            <li><a href="/">-</a></li>-->
                             <li><a href= "{{ url_for('update') }}">更新实体</a> </li>
                             <li><a href= "{{ url_for('update_relation') }}">更新关系</a> </li>
                             <li><a href= "{{ url_for('logout') }}">登出</a> </li>
                         {% else %}
                             <li><a href="/login">登录</a> </li>
+<!--                            <li><a href="/test">test</a> </li>-->
                         {% endif %}
                     </ul>
                 </div>

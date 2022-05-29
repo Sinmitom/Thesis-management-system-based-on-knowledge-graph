@@ -5,7 +5,7 @@
     <title></title>
     <meta charset="utf-8" />
     <script src="/static/js/echarts.js"></script>
-    
+
 </head>
 <title>实体查询</title>
 <div class="container">
@@ -20,7 +20,7 @@
     <div class = "col-md-12">
         <div class="panel panel-default ">
             <header class = "panel-heading">
-                查询条件🍉
+                查询条件🍉：
             </header>
             <div class = "panel-body">
                 <!--搜索框-->
@@ -46,33 +46,31 @@
             {% if not ctx %}
                 <div class="panel panel-default">
                     <header class ="panel-heading">
-                        <h2>未查询到此实体信息！🍬</h2>
+                        <h2>数据库中暂未添加该实体</h2>
                     </header>
                 </div>
             {% endif %}
         </div>
     </p>
-
 <!--实体关系查询-->
 {% if entityRelation %}
     <!-- Echart Dom对象（实体关系） -->
     <div class = "col-md-12">
         <div class="panel panel-default ">
             <header class="panel-heading">
-                关系图🍬
+                关系图 :
             </header>
             <div class = "panel-body ">
-                <div id="graph" style="width: 100%; height:600px;"></div>
+                <div id="graph" style="width: 90%;height:600px;"></div>
             </div>
         </div>
     </div>
 {% endif %}
-
 {% if entityRelation %}
 <div class = "col-md-12">
     <div class="panel panel-default">
     <header class="panel-heading">
-         关系列表⭐
+        关系列表 :
     </header>
         <div class = "panel-body">
             <table class = "table" data-paging =  "true" data-sorting="true"></table>
@@ -86,53 +84,33 @@
 <script src="/static/js/jquery.min.js"></script>
 <script type="text/javascript">
         // 基于查询结果：初始化Data和Links列表，用于Echarts可视化输出
-        var entityRelation = {{ entityRelation|safe }} ;
+        var entityRelation = [ {{ entityRelation|safe }} ] ;
         var data = [] ;
         var links = [] ;
         var node = {} ;
         //通过类型进行区分实体1
-        var str = entityRelation[0]['entity1']['Name']
+        var str = entityRelation[0][0]['entity1']['Name']
         //var str = eval('{{ ctx|safe }}')
         //实体1：待查询的对象
         node['name'] = str;
-        node['draggable'] = true;
-        var select = "{{select}}"
-        console.log(select)
-        if(select == 'paperName'){
-            node['category'] = 0;   //为论文类别
-        }
-        if(select == 'authorName'){
-            node['category'] = 1;   //为作者类别
-        }
+        node['draggable'] = true ;
         var id = 0;
         node['id'] = id.toString() ;
         data.push(node) ;
 
         //实体2：查询并转储到data中，取二者较小的值
         var maxDisPlayNode = 25 ;   //最大展示数目
-        for( var i = 0 ;i < Math.min(maxDisPlayNode,entityRelation.length) ; i++ ){
+        for( var i = 0 ;i < Math.min(maxDisPlayNode,entityRelation[0].length) ; i++ ){
             node = {} ;
-            node['name'] = entityRelation[i]['entity2']['Name'] ;
-            node['draggable'] = true ;   //是否允许拖拽
-            //区分类型
 
-            if('refer' == entityRelation[i]['rel']['type']){  //为论文-论文类别
-                node['category'] = 0 ;
-            }
-            else if('own' == entityRelation[i]['rel']['type']){  //为作者-论文类别
-                node['category'] = 0 ;
-            }
-            else if('belong' == entityRelation[i]['rel']['type']){
-                if(select == "authorName")   //为作者-机构
-                {
-                    node['category'] = 2;
-                }
-                else{
-                    node['category'] = 3;   //为论文-期刊
-                }
+            node['name'] = entityRelation[0][i]['entity2']['Name'] ;
+            node['draggable'] = true ;   //是否允许拖拽
+            //是否URL：区分类型
+            if('url' in entityRelation[0][i]['entity2']){
+                node['category'] = 1 ;
             }
             else{
-                node['category'] = 4;    //为作者-研究领域
+                node['category'] = 2 ;
             }
             id = i + 1
             node['id'] = id.toString();
@@ -152,7 +130,7 @@
 
             if(flag === 1){
                 data.push(node) ;
-                relation['value'] = entityRelation[i]['rel']['type'] ;
+                relation['value'] = entityRelation[0][i]['rel']['type'] ;
                 relation['symbolSize'] = 10
                 links.push(relation) ;
             }
@@ -160,7 +138,7 @@
                 maxDisPlayNode += 1 ;
                 for(var j = 0; j<links.length ;j++){
                     if(links[j]['target'] === relationTarget){
-                        links[j]['value'] = links[j]['value']+" | "+entityRelation[i]['rel']['type']
+                        links[j]['value'] = links[j]['value']+" | "+entityRelation[0][i]['rel']['type']
                         break ;
                     }
                 }
@@ -169,12 +147,12 @@
         }
         //基于表格的展示++
         tableData = []
-        for (var i = 0 ; i < entityRelation.length ; i++){
+        for (var i = 0 ; i < entityRelation[0].length ; i++){
             relationData = {} ;
 
             relationData['entity1'] = str ;
-            relationData['relation'] = entityRelation[i]['rel']['type'] ;
-            relationData['entity2'] = entityRelation[i]['entity2']['Name'] ;
+            relationData['relation'] = entityRelation[0][i]['rel']['type'] ;
+            relationData['entity2'] = entityRelation[0][i]['entity2']['Name'] ;
             tableData.push(relationData) ;
         }
         jQuery(function(){
@@ -188,131 +166,73 @@
         //基于表格的展示--
 
         // 基于准备好的数据：Data和Links，设置Echarts参数
-        var myChart = echarts.init(document.getElementById('graph'));  //初始化
+        var myChart = echarts.init(document.getElementById('graph'));
         option = {
             title: {
-                text: '知识图谱',     //标题
-                subtext: '',         // 副标题
-                textStyle:{
-                    fontSize:24,
-                },
-                subtextStyle:{
-                    fontSize:12,
-                    color:"pink",
-                },
-            },
-
-            tooltip: {    //提示框配置
-                show :true,
-                trigger:'item',
-                snap:true,
-
-                confine: false,      //是否将 tooltip 框限制在图表的区域内
-                formatter: function (x) {
-                    return x.data.name;//设置提示框的内容和格式 节点和边都显示name属性
-                },
-            },
-
-            toolbox: {
-                show : true,//是否显示工具箱
-                feature : {
-                    saveAsImage: {//保存图片
-                        show: true
-                    },
-                    restore: { //数据缩放还原
-                        show: true
-                    },
-                },
-            },
-
+                text: ''
+            },                //标题
+            tooltip: {},                           //提示框配置
             animationDurationUpdate: 1500,
             animationEasingUpdate: 'quinticInOut',
-
-            label: { //节点上的标签
+            label: {
                 normal: {
                     show: true,
                     textStyle: {
                         fontSize: 12
                     },
                 }
-            },
+            },                          //节点上的标签
             legend: {
                 x: "center",
-                show: true,
-                data:["论文","作者","机构","期刊","研究领域"],
+                show: false
             },
             series: [
                 {
-                    type: 'graph',                //系列
+                    type: 'graph',                //系列：
                     layout: 'force',
-                    symbolSize: 70,
+                    symbolSize: 45,
                     focusNodeAdjacency: true,
                     roam: true,
                     edgeSymbol: ['none', 'arrow'],
-                    edgeSymbolSize: [4, 10],
-                    categories:
-                    [
-                        {
-                            name: '论文',
-                            itemStyle: {
-                                normal: {
-                                    color: "#4C8EDA",
-                                }
+                    categories: [{
+                        name: 'Bank',
+                        itemStyle: {
+                            normal: {
+                                color: "#009800",
                             }
-                        },
-                        {
-                            name: '作者',
-                            itemStyle: {
-                                normal: {
-                                    color: "#DA7194",
-                                }
+                        }
+                    }, {
+                        name: 'Serise',
+                        itemStyle: {
+                            normal: {
+                                color: "#4592FF",
                             }
-                        },
-                        {
-                            name: '机构',
-                            itemStyle: {
-                                normal: {
-                                    color: "#569480",
-                                }
+                        }
+                    }, {
+                        name: 'Instance',
+                        itemStyle: {
+                            normal: {
+                                color: "#C71585",
                             }
-                        },
-                        {
-                            name: '期刊',
-                            itemStyle: {
-                                normal: {
-                                    color: "#8DCC93",
-                                }
-                            }
-                        },
-                        {
-                            name: '研究领域',
-                            itemStyle: {
-                                normal: {
-                                    color: "#C990C0",
-                                }
-                            }
-                        },
-
-                    ],
+                        }
+                    }],
                     label: {
                         normal: {
                             show: true,
-                            position: "inside",
                             textStyle: {
-                                fontSize: 14,
+                                fontSize: 12,
                             },
                         }
                     },               //节点标签样式
                     force: {
-                        repulsion: 2500,
-                        edgeLength: [50,500]
+                        repulsion: 1000
                     },
                     edgeSymbolSize: [4, 50],
                     edgeLabel: {
                         normal: {
                             show: true,
                             textStyle: {
-                                fontSize: 12
+                                fontSize: 10
                             },
                             formatter: "{c}"
                         }
@@ -323,7 +243,6 @@
                         normal: {
                             opacity: 0.9,
                             width: 1.3,
-                            type: 'solid',
                             curveness: 0,
                             color:"#262626"
                         }

@@ -13,7 +13,6 @@
     <div class="row">
     <!--head start-->
     <div class="col-md-12">
-        <h3 class="page-header"><i class="fa fa-link" aria-hidden="true"></i> 更新图谱 </h3>
             <ol class="breadcrumb">
                 <li><i class="fa fa-home"></i><a href="\search_entity">主页</a></li>
                 <li><i class="fa fa-link" aria-hidden="true"></i>更新图谱</li>
@@ -23,64 +22,100 @@
     <div class = "col-md-12">
     	<div class = "panel panel-default">
 			<header class="panel-heading">
-            更新图谱：
+            更新图谱🍉
        		</header>
        		<div class = "panel-body">
-				<form method="post" >
-
+				<form method="post",action="/update" >
 					<div class="input-group">
-						<select name = "selectFunction" id="selectFunction" >
-								<option value="0">选择功能</option>
-								<option value="1">添加实体</option>
-								<option value="2">删除实体</option>
-						</select>
-						<br/><br/>
+<!--						<select name = "selectFunction" id="selectFunction" >-->
+<!--								<option value="0">选择功能</option>-->
+<!--								<option value="1">添加实体</option>-->
+<!--								<option value="2">删除实体</option>-->
+<!--						</select>-->
+						<label style="width:60px; font-size: 14px;margin:10px 10px;">选择功能</label>
+						{{ form.selectFunction(class="form-control", style="width:150px;margin:10px 10px;") }}
+						<br>
+						<label style="width:60px; font-size: 14px; margin:10px 10px;">选择实体</label>
+						{{ form.selectBox(class="form-control", style="width:150px;margin:10px 10px;", onchange="showform()") }}
 						<div class="layui-input-inline" style="width: 300px;">
-
-							<select name="selectBox" id="selectBox" lay-filter="selectBox" onchange="showform()" >
-								<option value="0">选择实体类型</option>
-								<option value="1">Paper</option>
-								<option value="2">Author</option>
-								<option value="3">Affiliation</option>
-								<option value="4">Venue</option>
-								<option value="5">Concept</option>
-							</select>
-							</br></br>
-
+<!--							<select name="selectBox" id="selectBox" lay-filter="selectBox" onchange="showform()" >-->
+<!--								<option value="0">选择实体类型</option>-->
+<!--								<option value="1">Paper</option>-->
+<!--								<option value="2">Author</option>-->
+<!--								<option value="3">Affiliation</option>-->
+<!--								<option value="4">Venue</option>-->
+<!--								<option value="5">Concept</option>-->
+<!--							</select>-->
 						 </div>
 					</div>
 
 				<!-- 当选择Paper时，显示： -->
-				<div class="form-row" id="Paper-form" style="display: none;">
-					paperId   <input type="text" name="paperId" >
-					paperTitle <input type="text" name="paperTitle" >
-					paperYear  <input type="text" name="paperYear" >
-					<input class="button" type="submit" name="submit" value="Submit">
+				<div class="input-group" id="Paper-form" style="display:None;">
+<!--					paperId   <input type="text" name="paperId" >-->
+<!--					paperTitle <input type="text" name="paperTitle" >-->
+<!--					paperYear  <input type="text" name="paperYear" >-->
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">论文Id</label>
+					{{ form.paperId(class="form-control", placeholder="请输入论文Id" ,style="width:150px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">论文标题</label>
+					{{ form.paperTitle(class="form-control", placeholder="请输入论文标题" ,style="width:500px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">论文年份</label>
+					{{ form.paperYear(class="form-control", placeholder="请输入论文发表年份" ,style="width:200px;margin:10px 10px;")}}
+					<br>
+<!--					<input class="button" type="submit" name="submit" value="Submit">-->
 				</div>
 				<!-- 当选择Author时，显示： -->
-				<div class="form-row" id="Author-form" style="display: none;">
-					AuthorId   <input type="text" name="authorId" >
-					AuthorName <input type="text" name="authorName" >
-					<input class="button" type="submit" name="submit" value="Submit">
+				<div class="input-group" id="Author-form" style="display: none;">
+<!--					AuthorId   <input type="text" name="authorId" >-->
+<!--					AuthorName <input type="text" name="authorName" >-->
+<!--					<input class="button" type="submit" name="submit" value="Submit">-->
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">作者Id</label>
+					{{ form.authorId(class="form-control", placeholder="请输入作者Id" ,style="width:150px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">作者姓名</label>
+					{{ form.authorName(class="form-control", placeholder="请输入作者姓名" ,style="width:400px;margin:10px 10px;")}}
+					<br>
 				</div>
 				<!-- 当选择Affiliaiton时，显示： -->
-				<div class="form-row" id="Affiliation-form" style="display: none;">
-					AffiliationId   <input type="text" name="affiliationId" >
-					AffiliationName <input type="text" name="affiliationName" >
-					<input class="button" type="submit" name="submit" value="Submit">
+				<div class="input-group" id="Affiliation-form" style="display: none;">
+<!--					AffiliationId   <input type="text" name="affiliationId" >-->
+<!--					AffiliationName <input type="text" name="affiliationName" >-->
+<!--					<input class="button" type="submit" name="submit" value="Submit">-->
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">机构Id</label>
+					{{ form.affiliationId(class="form-control", placeholder="请输入机构Id" ,style="width:150px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">机构名称</label>
+					{{ form.affiliationName(class="form-control", placeholder="请输入机构名称" ,style="width:400px;margin:10px 10px;")}}
+					<br>
 				</div>
 				<!-- 当选择Venue时，显示： -->
-				<div class="form-row" id="Venue-form" style="display: none;">
-					VenueId   <input type="text" name="venueId" >
-					VenueName <input type="text" name="venueName" >
-					<input class="button" type="submit" name="submit" value="Submit">
+				<div class="input-group" id="Venue-form" style="display: none;">
+<!--					VenueId   <input type="text" name="venueId" >-->
+<!--					VenueName <input type="text" name="venueName" >-->
+<!--					<input class="button" type="submit" name="submit" value="Submit">-->
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">期刊Id</label>
+					{{ form.venueId(class="form-control", placeholder="请输入期刊Id" ,style="width:150px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">期刊名称</label>
+					{{ form.venueName(class="form-control", placeholder="请输入期刊名称" ,style="width:400px;margin:10px 10px;")}}
+					<br>
+
 				</div>
 				<!-- 当选择Concept时，显示： -->
-				<div class="form-row" id="Concept-form" style="display: none;">
-					ConceptId   <input type="text" name="conceptId" >
-					ConceptName <input type="text" name="conceptName" >
-					<input class="button" type="submit" name="submit" value="Submit">
+				<div class="input-group" id="Concept-form" style="display: none;">
+<!--					ConceptId   <input type="text" name="conceptId" >-->
+<!--					ConceptName <input type="text" name="conceptName" >-->
+<!--					<input class="button" type="submit" name="submit" value="Submit">-->
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">领域Id</label>
+					{{ form.conceptId(class="form-control", placeholder="请输入研究领域Id" ,style="width:150px;margin:10px 10px;")}}
+					<br>
+					<label style="width:60px; font-size: 14px;margin:10px 10px;">领域名称</label>
+					{{ form.conceptName(class="form-control", placeholder="请输入研究领域名称" ,style="width:400px;margin:10px 10px;")}}
+					<br>
 				</div>
+				{{ form.submit(class="btn btn-primary", style="background-color:#4592fe; margin: 10px 10px;",
+					onclick="{if(confirm('确定要更新此实体信息吗?')){this.document.form.submit();return true;}return false;}") }}
 				</form>
 			</div>
 		</div>
@@ -90,13 +125,13 @@
 	<div class = "col-md-12">
 		<div class = "panel panel-default">
 			<header class = "panel-heading">
-				更新结果：
+				{% if not message%}
+					更新失败！🍬
+				{%endif%}
+				{% if message%}
+					{{message}}🍬
+				{%endif%}
 			</header>
-			<div class = "panel-body">
-				<div style="padding: 2%">
-					<h2>数据库中尚未添加该实体</h2>
-				</div>
-			</div>
 		</div>
 	</div>
 	{% endif %}
@@ -107,10 +142,10 @@
     <div class = "col-md-12">
         <div class="panel panel-default ">
 	        <header class="panel-heading">
-	            关系图 :
+	            关系图🍬
 	        </header>
             <div class = "panel-body ">
-                <div id="graph" style="width: 100%;height:600px;"></div>
+                <div id="graph" style="width: 100%;height:100px;"></div>
             </div>
         </div>
     </div>
@@ -120,7 +155,7 @@
     <div class = "col-md-12">
 	    <div class="panel panel-default">
 	    	<header class="panel-heading">
-	       	 关系列表 :
+	       	 实体信息表⭐
 	   		</header>
 	        <div class = "panel-body">
 	            <table class = "table" data-paging =  "true" data-sorting="true"></table>
@@ -143,9 +178,9 @@ for (var i = 0; i < entityRelation.length; i++) {
     relationData = {};
     relationData['Id'] = entityRelation[i]['entity']['Id'];
     relationData['Name'] = entityRelation[i]['entity']['Name'];
-    if('Abstract' in entityRelation[i]['entity'])
+    if('Year' in entityRelation[i]['entity'])
     {
-    	relationData['Info'] = entityRelation[i]['entity']['Abstract'];
+    	relationData['Info'] = entityRelation[i]['entity']['Year'];
     }
     else{
     	relationData['Info'] = '';
@@ -294,23 +329,6 @@ for (var i = 0; id < Math.min(maxDisPlayNode, entityRelation.length) && i < enti
 </script>
 
 {% endif %}
-<script>
-	$(".dropdown-menu li a").click(function(){
-	   var selText = $(this).text();
-	   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-	   if(selText.trim()!="Other"){
-	   	$("#relation_name_input").val(selText.trim()) ;
-	   }
-	   //combobox behavior
-	   if (selText.trim()==="Other") {
-	       $("#relation_name").removeClass("hide");
-	   }
-	   else{
-	   	   $("#relation_name").addClass("hide");
-	   }
-
-	});
-</script>
 
 <script>
     const select = document.querySelector('#selectBox')
